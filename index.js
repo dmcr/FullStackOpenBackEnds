@@ -1,15 +1,9 @@
-const express = require('express')
-const cors = require('cors')
-const mongoose = require('mongoose')
-const app = express()
-
-app.use(cors())
-app.use(express.json())
-
-
-
+const app = require('./app')
+const http = require('http')
 const port = 3000
 
-app.get('/', (req, res) => res.send('Test2'))
+const server = http.createServer(app)
 
-app.listen(port, () => console.log(`Server listening on port ${port}`))
+server.listen(port, () => {
+    console.log(`Server running on port ${port}`)
+})
