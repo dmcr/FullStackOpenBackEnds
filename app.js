@@ -1,10 +1,11 @@
+require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
 const app = express()
 const mongoose = require('mongoose')
 const Blog = require('./models/blog')
 
-const mongoUrl = 'mongodb+srv://fso-blog:0CqCBvj5J5vChvVe@blog-pdvxn.mongodb.net/test?retryWrites=true&w=majority'
+const mongoUrl = process.env.MONGO_URI
 mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(success => (success) ? console.log('Connected To MongoDB Blog Cluster') : '')
     .catch(error => console.error('Failed to connect to mongoDB Blog cluster:', error.message))
