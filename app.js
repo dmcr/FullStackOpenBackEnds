@@ -3,6 +3,7 @@ const cors = require('cors')
 const app = express()
 const mongoose = require('mongoose')
 const Blog = require('./models/blog')
+const blogsRouter = require('./controllers/blogs')
 const config = require('./utils/config')
 const logger = require('./utils/logger')
 
@@ -14,34 +15,6 @@ mongoose.connect(config.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology
 
 app.use(cors())
 app.use(express.json())
-
-app.get('/api/blogs', (req, res, next) => {
-    Blog
-        .find({})
-        .then(blogs => blogs.map(blog => blog.toJSON()))
-        .then(blogsJSON => {
-            res.json(blogsJSON)
-        })
-        .catch(error => next(error))
-})
-
-app.post('/api/blogs', (req, res, next) => {
-    const body = req.body
-    
-    const blog = new Blog({
-        'title': body.title,
-        'author': body.author,
-        'url': body.url,
-        'likes': body.likes
-    })
-
-    blog
-        .save()
-        .then(result => result.toJSON())
-        .then(resultJSON => {
-            res.status(201).json(resultJSON)
-        })
-        .catch(error => next(error))
-})
+app.use('/api/blogs', blogsRouter)
 
 module.exports = app
