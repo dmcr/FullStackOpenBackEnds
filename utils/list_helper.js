@@ -1,0 +1,7 @@
+const totalLikes = (blogs) => {
+    return blogs.reduce((accumulator, currentValue) => accumulator + currentValue.likes, 0)
+}
+
+module.exports = {
+    totalLikes
+}
