@@ -11,8 +11,7 @@ const blog = [
 ]
 
 const authorWithMostBlogs = {
-    author: 'Michael Chan',
-    blogs: 3
+    'Robert C. Martin': 3
 }
 
 describe('total likes', () => {
@@ -33,9 +32,6 @@ describe('total likes', () => {
 describe('most blogs', () => {
     test('returns author with the most blogs from list', () => {
         const result = mostBlogs(blogs)
-        console.log(result)
-        //console.log(Object.keys(result)[0])
-        //console.log(Object.values(result)[0])
-        //expect(result).toBe(authorWithMostBlogs)
+        expect(result).toEqual(authorWithMostBlogs)
     })
 })
