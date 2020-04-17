@@ -1,22 +1,41 @@
-const totalLikes = require('../utils/list_helper').totalLikes
+const listHelper = require('../utils/list_helper')
+const totalLikes = listHelper.totalLikes
+const mostBlogs = listHelper.mostBlogs
+
+const blogs = [ 
+    { _id: "5a422a851b54a676234d17f7", title: "React patterns", author: "Michael Chan", url: "https://reactpatterns.com/", likes: 7, __v: 0 }, { _id: "5a422aa71b54a676234d17f8", title: "Go To Statement Considered Harmful", author: "Edsger W. Dijkstra", url: "http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html", likes: 5, __v: 0 }, { _id: "5a422b3a1b54a676234d17f9", title: "Canonical string reduction", author: "Edsger W. Dijkstra", url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html", likes: 12, __v: 0 }, { _id: "5a422b891b54a676234d17fa", title: "First class tests", author: "Robert C. Martin", url: "http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll", likes: 10, __v: 0 }, { _id: "5a422ba71b54a676234d17fb", title: "TDD harms architecture", author: "Robert C. Martin", url: "http://blog.cleancoder.com/uncle-bob/2017/03/03/TDD-Harms-Architecture.html", likes: 0, __v: 0 }, { _id: "5a422bc61b54a676234d17fc", title: "Type wars", author: "Robert C. Martin", url: "http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html", likes: 2, __v: 0 }
+]
+
+const blog = [
+    { _id: "5a422a851b54a676234d17f7", title: "React patterns", author: "Michael Chan", url: "https://reactpatterns.com/", likes: 7, __v: 0 }
+]
+
+const authorWithMostBlogs = {
+    author: 'Michael Chan',
+    blogs: 3
+}
 
 describe('total likes', () => {
     test('is the sum of all blogs likes in a list', () => {
-        const blogs = [{likes: 0}, {likes: 3}, {likes: 1}]
-
         const result = totalLikes(blogs)
-        expect(result).toBe(4)
+        expect(result).toBe(36)
     })
     test('is the sum of one blogs likes when only one blog in as list', () => {
-        const blogs = [{likes: 5}]
-
-        const result = totalLikes(blogs)
-        expect(result).toBe(5)
+        const result = totalLikes(blog)
+        expect(result).toBe(7)
     })
     test('is zero when an empty list', () => {
-        const blogs = []
-
-        const result = totalLikes(blogs)
+        const result = totalLikes([])
         expect(result).toBe(0)
+    })
+})
+
+describe('most blogs', () => {
+    test('returns author with the most blogs from list', () => {
+        const result = mostBlogs(blogs)
+        console.log(result)
+        //console.log(Object.keys(result)[0])
+        //console.log(Object.values(result)[0])
+        //expect(result).toBe(authorWithMostBlogs)
     })
 })
