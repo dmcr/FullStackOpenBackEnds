@@ -1,6 +1,7 @@
 const countBy = require('lodash.countby')
 const logger = require('../utils/logger')
 const fromPairs = require('lodash.frompairs')
+const isEmpty = require('lodash.isempty')
 
 const totalLikes = (blogs) => {
     return blogs.reduce((accumulator, currentValue) => accumulator + currentValue.likes, 0)
@@ -17,6 +18,8 @@ const mostBlogs = (blogs) => {
     // }, {})
 
     const results = countBy(blogs, 'author')
+    if (isEmpty(results))
+        return results
     const result = Object.entries(results).pop()
     return fromPairs([[...result]])
 }

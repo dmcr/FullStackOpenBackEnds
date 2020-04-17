@@ -34,4 +34,8 @@ describe('most blogs', () => {
         const result = mostBlogs(blogs)
         expect(result).toEqual(authorWithMostBlogs)
     })
+    test('return empty object when no blogs passed', () => {
+        const result = mostBlogs([])
+        expect(result).toEqual({})
+    })
 })
