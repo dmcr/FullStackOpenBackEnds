@@ -4,6 +4,43 @@ const app = require('../app')
 
 const api = supertest(app)
 
+const Blog = require('../models/blog')
+
+const initialBlogs = [
+    {
+        title: 'blog numero uno',
+        author: 'tester',
+        url: 'http://google.com',
+        likes: 0
+    },
+    {
+        title: 'blog numero dos',
+        author: 'tester1',
+        url: 'http://google.com/1',
+        likes: 0
+    },
+    {
+        title: 'blog numero tres',
+        author: 'tester2',
+        url: 'http://google.com/2',
+        likes: 0
+    }
+]
+
+beforeEach(async () => {
+    await Blog.deleteMany({})
+
+    let blogObject = new Blog(initialBlogs[0])
+    await blogObject.save()
+
+    blogObject = new Blog(initialBlogs[1])
+    await blogObject.save()
+
+    blogObject = new Blog(initialBlogs[2])
+    await blogObject.save()
+
+})
+
 test('blogs are returned as json', async () => {
     await api
         .get('/api/blogs')
@@ -13,12 +50,15 @@ test('blogs are returned as json', async () => {
 
 test('there are 3 blogs', async () => {
     const response = await api.get('/api/blogs')
-    expect(response.body).toHaveLength(3)
+    expect(response.body).toHaveLength(initialBlogs.length)
 })
 
 test('the first blog is google', async () => {
     const response = await api.get('/api/blogs')
-    expect(response.body[0].url).toBe('http://google.com')
+
+    const contents = response.body.map(r => r.url)
+
+    expect(contents[0]).toBe('http://google.com')
 })
 
 afterAll(() => {
