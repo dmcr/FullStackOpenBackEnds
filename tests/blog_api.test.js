@@ -53,6 +53,27 @@ test('there are 3 blogs', async () => {
     expect(response.body).toHaveLength(initialBlogs.length)
 })
 
+test('a valid blog can be added', async () => {
+    const newBlog = {
+        title: 'blog numero 4',
+        author: 'tester4',
+        url: 'http://google.com/4',
+        likes: 0
+    }
+
+    await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
+
+    const response = await api.get('/api/blogs')
+    
+    const returnedBlogs = response.body.map(({ id, ...blog }) => blog)
+
+    expect(returnedBlogs).toEqual(expect.arrayContaining([newBlog]))
+})
+
 test('the first blog is google', async () => {
     const response = await api.get('/api/blogs')
 
