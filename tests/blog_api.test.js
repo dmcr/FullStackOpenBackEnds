@@ -5,42 +5,23 @@ const app = require('../app')
 const api = supertest(app)
 
 const Blog = require('../models/blog')
-
-const initialBlogs = [
-    {
-        title: 'blog numero uno',
-        author: 'tester',
-        url: 'http://google.com',
-        likes: 0
-    },
-    {
-        title: 'blog numero dos',
-        author: 'tester1',
-        url: 'http://google.com/1',
-        likes: 0
-    },
-    {
-        title: 'blog numero tres',
-        author: 'tester2',
-        url: 'http://google.com/2',
-        likes: 0
-    }
-]
+const helper = require('../tests/test_helper')
 
 beforeEach(async () => {
     await Blog.deleteMany({})
 
-    let blogObject = new Blog(initialBlogs[0])
+    let blogObject = new Blog(helper.initialBlogs[0])
     await blogObject.save()
 
-    blogObject = new Blog(initialBlogs[1])
+    blogObject = new Blog(helper.initialBlogs[1])
     await blogObject.save()
 
-    blogObject = new Blog(initialBlogs[2])
+    blogObject = new Blog(helper.initialBlogs[2])
     await blogObject.save()
 
 })
 
+// Tests get all blogs api endpoint
 test('blogs are returned as json', async () => {
     await api
         .get('/api/blogs')
@@ -48,30 +29,25 @@ test('blogs are returned as json', async () => {
         .expect('Content-Type', /application\/json/)
 })
 
-test('there are 3 blogs', async () => {
+// Tests get all blogs api endpoint
+test('all blogs are returned', async () => {
     const response = await api.get('/api/blogs')
-    expect(response.body).toHaveLength(initialBlogs.length)
+    expect(response.body).toHaveLength(helper.initialBlogs.length)
 })
 
+// Tests post new blog endpoint
 test('a valid blog can be added', async () => {
-    const newBlog = {
-        title: 'blog numero 4',
-        author: 'tester4',
-        url: 'http://google.com/4',
-        likes: 0
-    }
-
     await api
         .post('/api/blogs')
-        .send(newBlog)
+        .send(helper.newBlog)
         .expect(200)
         .expect('Content-Type', /application\/json/)
 
-    const response = await api.get('/api/blogs')
+    const blogsInDB = await helper.blogsInDB()
     
-    const returnedBlogs = response.body.map(({ id, ...blog }) => blog)
+    const result = blogsInDB.map(({ id, ...blog }) => blog)
 
-    expect(returnedBlogs).toEqual(expect.arrayContaining([newBlog]))
+    expect(result).toEqual(expect.arrayContaining([helper.newBlog]))
 })
 
 test('the first blog is google', async () => {
