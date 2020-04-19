@@ -2,13 +2,8 @@ const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
 
 blogsRouter.get('/', async (req, res, next) => {
-    try {
-        const blogs = await Blog.find({})
-        res.json(blogs.map(blog => blog.toJSON()))
-    }
-    catch(exception) {
-        next(exception)
-    }
+    const blogs = await Blog.find({})
+    res.json(blogs.map(blog => blog.toJSON()))
 })
 
 blogsRouter.post('/', async (req, res, next) => {
@@ -21,13 +16,8 @@ blogsRouter.post('/', async (req, res, next) => {
         'likes': body.likes
     })
 
-    try {
-        const savedBlog = await blog.save()
-        res.status(200).json(blog.toJSON())
-    }
-    catch (exception) {
-        next(exception)
-    }
+    const savedBlog = await blog.save()
+    res.status(200).json(blog.toJSON())
 })
 
 module.exports = blogsRouter
