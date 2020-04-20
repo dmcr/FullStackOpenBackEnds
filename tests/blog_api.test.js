@@ -17,70 +17,73 @@ beforeEach(async () => {
     }
 })
 
-// Tests get all blogs api endpoint
-test('blogs are returned as json', async () => {
-    await api
-        .get('/api/blogs')
-        .expect(200)
-        .expect('Content-Type', /application\/json/)
+describe('when blogs exist', () => {
+    test('blogs are returned as json', async () => {
+        await api
+            .get('/api/blogs')
+            .expect(200)
+            .expect('Content-Type', /application\/json/)
+    })
+
+    test('all blogs are returned', async () => {
+        const response = await api.get('/api/blogs')
+        expect(response.body).toHaveLength(helper.initialBlogs.length)
+    })
+
+    test('the first blog is google', async () => {
+        const response = await api.get('/api/blogs')
+        const contents = response.body.map(r => r.url)
+        expect(contents[0]).toBe('http://google.com')
+    })
+
+    test('blogs have id', async () => {
+        const blogsInDB = await helper.blogsInDB()
+        expect(blogsInDB[0].id).toBeDefined()
+    })
 })
 
-// Tests get all blogs api endpoint
-test('all blogs are returned', async () => {
-    const response = await api.get('/api/blogs')
-    expect(response.body).toHaveLength(helper.initialBlogs.length)
+
+describe('when adding new blogs', () => {
+    test('a valid blog can be added', async () => {
+        await api
+            .post('/api/blogs')
+            .send(helper.newBlog)
+            .expect(200)
+            .expect('Content-Type', /application\/json/)
+    
+        // Does not test get all blogs endpoint but uses helper
+        const blogsInDB = await helper.blogsInDB()
+        const result = blogsInDB.map(({ id, ...blog }) => blog)
+        expect(result).toEqual(expect.arrayContaining([helper.newBlog]))
+    })
+
+    test('an invalid blog cannot be added', async () => {
+        const newBlog = helper.newBlog
+        delete newBlog.title
+        delete newBlog.url
+
+        await api
+            .post('/api/blogs')
+            .send(newBlog)
+            .expect(400)
+
+        const blogs = await helper.blogsInDB()
+        expect(blogs).toHaveLength(helper.initialBlogs.length)
+    })
+
+    test('likes property defaults to 0', async () => {
+        const newBlog = helper.newBlog
+        delete newBlog.likes
+    
+        await api
+            .post('/api/blogs')
+            .send(newBlog)
+    
+        const returnedBlogs = await helper.blogsInDB()
+        expect(returnedBlogs[0])
+    
+    })
 })
-
-// Tests get all blogs api endpoint
-test('the first blog is google', async () => {
-    const response = await api.get('/api/blogs')
-    const contents = response.body.map(r => r.url)
-    expect(contents[0]).toBe('http://google.com')
-})
-
-// Tests post new blog endpoint
-test('a valid blog can be added', async () => {
-    await api
-        .post('/api/blogs')
-        .send(helper.newBlog)
-        .expect(200)
-        .expect('Content-Type', /application\/json/)
-
-    // Does not test get all blogs endpoint but uses helper
-    const blogsInDB = await helper.blogsInDB()
-    const result = blogsInDB.map(({ id, ...blog }) => blog)
-    expect(result).toEqual(expect.arrayContaining([helper.newBlog]))
-})
-
-// Tests post new blog endpoint
-test('missing url or title in post responds 400', async () => {
-    const newBlog = helper.newBlog
-    delete newBlog.title
-    delete newBlog.url
-    await api
-        .post('/api/blogs')
-        .send(newBlog)
-        .expect(400)
-})
-
-test('likes default to 0', async () => {
-    const newBlog = helper.newBlog
-    delete newblog.likes
-
-    await api
-        .post('/api/blogs')
-        .send(newBlog)
-
-    const returnedBlogs = await helper.blogsInDB()
-    expect(returnedBlogs[0])
-
-})
-
-test('objects have id not _id', async () => {
-    const blogsInDB = await helper.blogsInDB()
-    expect(blogsInDB[0].id).toBeDefined()
-})
-
 
 afterAll(() => {
     mongoose.connection.close()
