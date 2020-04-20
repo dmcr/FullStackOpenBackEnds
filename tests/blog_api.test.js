@@ -34,9 +34,7 @@ test('all blogs are returned', async () => {
 // Tests get all blogs api endpoint
 test('the first blog is google', async () => {
     const response = await api.get('/api/blogs')
-
     const contents = response.body.map(r => r.url)
-
     expect(contents[0]).toBe('http://google.com')
 })
 
@@ -48,13 +46,41 @@ test('a valid blog can be added', async () => {
         .expect(200)
         .expect('Content-Type', /application\/json/)
 
-    // Does not test get all blogs endpoint but users helper
+    // Does not test get all blogs endpoint but uses helper
     const blogsInDB = await helper.blogsInDB()
-    
     const result = blogsInDB.map(({ id, ...blog }) => blog)
-
     expect(result).toEqual(expect.arrayContaining([helper.newBlog]))
 })
+
+// Tests post new blog endpoint
+test('missing url or title in post responds 400', async () => {
+    const newBlog = helper.newBlog
+    delete newBlog.title
+    delete newBlog.url
+    await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(400)
+})
+
+test('likes default to 0', async () => {
+    const newBlog = helper.newBlog
+    delete newblog.likes
+
+    await api
+        .post('/api/blogs')
+        .send(newBlog)
+
+    const returnedBlogs = await helper.blogsInDB()
+    expect(returnedBlogs[0])
+
+})
+
+test('objects have id not _id', async () => {
+    const blogsInDB = await helper.blogsInDB()
+    expect(blogsInDB[0].id).toBeDefined()
+})
+
 
 afterAll(() => {
     mongoose.connection.close()
