@@ -17,7 +17,7 @@ beforeEach(async () => {
     }
 })
 
-describe('when blogs exist', () => {
+describe('GET /api/blogs', () => {
     test('blogs are returned as json', async () => {
         await api
             .get('/api/blogs')
@@ -43,7 +43,7 @@ describe('when blogs exist', () => {
 })
 
 
-describe('when adding new blogs', () => {
+describe('POST /api/blogs', () => {
     test('a valid blog can be added', async () => {
         await api
             .post('/api/blogs')
@@ -80,8 +80,37 @@ describe('when adding new blogs', () => {
             .send(newBlog)
     
         const returnedBlogs = await helper.blogsInDB()
-        expect(returnedBlogs[0])
+        expect(returnedBlogs[3].likes).toBe(0)
     
+    })
+})
+
+describe('DELETE /api/blogs', () => {
+    test('remove an existing blog with valid id', async () => {
+        const existingBlogs = await helper.blogsInDB()
+    
+        await api
+            .delete(`/api/blogs/${existingBlogs[0].id}`)
+            .expect(204)
+
+        const resultingBlogs = await helper.blogsInDB()
+        expect(resultingBlogs).toHaveLength(existingBlogs.length - 1)
+    })
+})
+
+describe('PUT /api/blogs', () => {
+    test('existing blogs likes can be updated', async () => {
+        const existingBlogs = await helper.blogsInDB()
+        const newLikes = { likes: 100 }
+
+        const updateResponse = await api
+            .put(`/api/blogs/${existingBlogs[0].id}`)
+            .send(newLikes)
+            .expect(200)
+            .expect('Content-Type', /application\/json/)
+            
+        const updatedBlog = updateResponse.body
+        expect(updatedBlog.likes).toBe(100)
     })
 })
 
