@@ -80,7 +80,7 @@ describe('POST /api/blogs', () => {
             .send(newBlog)
     
         const returnedBlogs = await helper.blogsInDB()
-        expect(returnedBlogs[3].likes).toBe(0)
+        expect(returnedBlogs[2].likes).toBe(0)
     
     })
 })

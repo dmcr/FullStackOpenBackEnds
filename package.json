@@ -28,7 +28,8 @@
     "lodash.countby": "^4.6.0",
     "lodash.frompairs": "^4.0.1",
     "lodash.isempty": "^4.4.0",
-    "mongoose": "^5.9.7"
+    "mongoose": "^5.9.7",
+    "mongoose-unique-validator": "^2.0.3"
   },
   "devDependencies": {
     "jest": "^25.2.6",
