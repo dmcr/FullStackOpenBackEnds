@@ -10,24 +10,21 @@ const mongoose = require('mongoose')
 beforeEach(async () => {
     await User.deleteMany({})
 
-    const passwordHash = await bcrypt.hash('existingPassword', 10)
-    const user = new User({ username: 'existingUser', name: 'existingName', passwordHash })
+    const passwordHash = await bcrypt.hash(helper.initialUser.password, 10)
+    const user = new User({ 
+        username: helper.initialUser.username, 
+        name: helper.initialUser.name, 
+        passwordHash 
+    })
 
     await user.save()
 })
 
 describe('POST /api/users', () => {
     test('a new user can be added', async () => {
-        //const passwordHash = await bcrypt.hash('newPassword', 10)
-        const user = {
-            username: 'newUser',
-            name: 'newName',
-            password: 'newPassword'
-        }
-
         await api
             .post('/api/users')
-            .send(user)
+            .send(helper.newUser)
             .expect(200)
             .expect('Content-Type', /application\/json/)
 
