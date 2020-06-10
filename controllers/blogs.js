@@ -41,10 +41,8 @@ blogsRouter.delete('/:id', async (request, response, next) => {
         return response.status(401).json({ error: 'token missing or invalid'})
     }
     const user = await User.findById(decodedToken.id)
-    console.log(user._id.toString())
     let foundBlog = await Blog.findById(request.params.id)   
     foundBlog = foundBlog.toJSON()
-    console.log(foundBlog.user)
     if (!foundBlog || !foundBlog.user || foundBlog.user.toString() !== user._id.toString())
         return response.status(401).json({ error: 'blog does not belong to logged in user' })
 
@@ -59,6 +57,13 @@ blogsRouter.put('/:id', async (request, response, next) => {
         updatedFields.likes = body.likes
     
     const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, updatedFields, { new: true })
+    response.status(200).json(updatedBlog.toJSON())
+})
+
+blogsRouter.put('/like/:id', async (request, response, next) => {
+    const blogToUpdate = await Blog.findById(request.params.id)
+    const newLikes = { likes: blogToUpdate.likes += 1 }
+    const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, newLikes, { new: true })
     response.status(200).json(updatedBlog.toJSON())
 })
 
