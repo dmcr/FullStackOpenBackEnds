@@ -3,22 +3,31 @@ const Blog = require('../models/blog')
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
 
+const authenticateToken = (token, response) => {
+    const decodedToken = jwt.verify(token, process.env.SECRET)
+    if (!token || !decodedToken.id) {
+        return response.status(401).json({ error: 'token missing or invalid'})
+    }
+    return decodedToken
+}
+
+const getUserByDecodedToken = async (decodedToken) => {
+    const user = await User.findById(decodedToken.id)
+    return user
+}
+
 blogsRouter.get('/', async (req, res, next) => {
     const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 })
     res.json(blogs.map(blog => blog.toJSON()))
 })
 
-blogsRouter.post('/', async (req, res, next) => {
-    const body = req.body
-    const decodedToken = jwt.verify(req.token, process.env.SECRET)
-
-    if (!req.token || !decodedToken.id) {
-        return response.status(401).json({ error: 'token missing or invalid'})
-    }
-    const user = await User.findById(decodedToken.id)
+blogsRouter.post('/', async (request, response, next) => {
+    const body = request.body
+    const decodedToken = authenticateToken(request.token)
+    const user = await getUserByDecodedToken(decodedToken)
 
     if(!body.title || !body.url)
-        return res.status(400).send()
+        return response.status(400).send()
 
     const blog = new Blog({
         title: body.title,
@@ -32,15 +41,13 @@ blogsRouter.post('/', async (req, res, next) => {
     user.blogs = user.blogs.concat(savedBlog._id)
     await user.save()
 
-    res.status(200).json(blog.toJSON())
+    response.status(200).json(blog.toJSON())
 })
 
 blogsRouter.delete('/:id', async (request, response, next) => {
-    const decodedToken = jwt.verify(request.token, process.env.SECRET)
-    if (!request.token || !decodedToken.id) {
-        return response.status(401).json({ error: 'token missing or invalid'})
-    }
-    const user = await User.findById(decodedToken.id)
+    const decodedToken = authenticateToken(request.token)
+    const user = await getUserByDecodedToken(decodedToken)
+
     let foundBlog = await Blog.findById(request.params.id)   
     foundBlog = foundBlog.toJSON()
     if (!foundBlog || !foundBlog.user || foundBlog.user.toString() !== user._id.toString())
@@ -51,6 +58,7 @@ blogsRouter.delete('/:id', async (request, response, next) => {
 })
 
 blogsRouter.put('/:id', async (request, response, next) => {
+    authenticateToken(request.token)
     const body = request.body
     let updatedFields = {}
     if (body.likes)
@@ -61,6 +69,7 @@ blogsRouter.put('/:id', async (request, response, next) => {
 })
 
 blogsRouter.put('/like/:id', async (request, response, next) => {
+    authenticateToken(request.token)
     const blogToUpdate = await Blog.findById(request.params.id)
     const newLikes = { likes: blogToUpdate.likes += 1 }
     const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, newLikes, { new: true })
